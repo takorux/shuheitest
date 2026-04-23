@@ -326,3 +326,82 @@ body {
     font-size: 0.8rem;
     line-height: 1.5;
 }
+
+/* Counters Section */
+.counters-section {
+    margin-top: 15px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--hex-border);
+}
+
+.counters-title {
+    color: var(--hex-gold);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.counter-champs {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.counter-champ-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--hex-border);
+    border-radius: 4px;
+    padding: 10px;
+    width: 100px;
+}
+
+.counter-champ-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    border: 1px solid var(--hex-gold);
+}
+
+.counter-champ-card span {
+    color: var(--hex-gold-light);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.no-counter-data {
+    color: var(--hex-text);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Combo Section */
+.combo-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--hex-border);
+}
+
+.combo-title {
+    color: var(--hex-gold);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.combo-list {
+    list-style: none;
+    padding: 0;
+}
+
+.combo-list li {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--hex-gold);
+    color: #fff;
+    font-family: monospace;
+    font-size: 1rem;
+}

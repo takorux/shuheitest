@@ -109,6 +109,63 @@ function openModal(champ, version) {
         `;
     });
 
+    // Counters HTML
+    let countersHTML = '';
+    if (typeof COUNTER_DATA !== 'undefined' && COUNTER_DATA[champ.id]) {
+        const counterIds = COUNTER_DATA[champ.id];
+        let counterCards = '';
+        counterIds.forEach(cId => {
+            const counterChamp = championsList.find(c => c.id === cId);
+            const champName = counterChamp ? counterChamp.name : cId;
+            counterCards += `
+                <div class="counter-champ-card">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${cId}.png" alt="${champName}" onerror="this.src=''">
+                    <span>${champName}</span>
+                </div>
+            `;
+        });
+        countersHTML = `
+            <div class="counters-section">
+                <h3 class="counters-title">おすすめカウンターピック</h3>
+                <div class="counter-champs">
+                    ${counterCards}
+                </div>
+            </div>
+        `;
+    } else {
+        countersHTML = `
+            <div class="counters-section">
+                <h3 class="counters-title">おすすめカウンターピック</h3>
+                <p class="no-counter-data">このチャンピオンの対策データは未登録です。（countersData.jsで追加できます）</p>
+            </div>
+        `;
+    }
+
+    // Combos HTML
+    let combosHTML = '';
+    if (typeof COMBO_DATA !== 'undefined' && COMBO_DATA[champ.id]) {
+        const combos = COMBO_DATA[champ.id];
+        let comboItems = '';
+        combos.forEach(combo => {
+            comboItems += `<li>${combo}</li>`;
+        });
+        combosHTML = `
+            <div class="combo-section">
+                <h3 class="combo-title">基礎コンボ</h3>
+                <ul class="combo-list">
+                    ${comboItems}
+                </ul>
+            </div>
+        `;
+    } else {
+        combosHTML = `
+            <div class="combo-section">
+                <h3 class="combo-title">基礎コンボ</h3>
+                <p class="no-counter-data">コンボデータは未登録です。（countersData.jsで追加できます）</p>
+            </div>
+        `;
+    }
+
     modalBody.innerHTML = `
         <div class="champ-header">
             <img src="https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champ.id}.png" alt="${champ.name}">
@@ -117,7 +174,9 @@ function openModal(champ, version) {
                 <p>${champ.title}</p>
             </div>
         </div>
-        <div class="skills-container">
+        ${countersHTML}
+        ${combosHTML}
+        <div class="skills-container" style="margin-top: 30px;">
             ${skillsHTML}
         </div>
     `;
