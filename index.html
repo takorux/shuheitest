@@ -13,12 +13,27 @@
             <h1>League of Legends <span>Skill CDs</span></h1>
             <input type="text" id="searchInput" placeholder="チャンピオンを検索..." autocomplete="off">
         </div>
+        <div class="role-filters" id="roleFilters">
+            <button class="role-btn active" data-role="All">すべて</button>
+            <button class="role-btn" data-role="Fighter">ファイター</button>
+            <button class="role-btn" data-role="Mage">メイジ</button>
+            <button class="role-btn" data-role="Assassin">アサシン</button>
+            <button class="role-btn" data-role="Marksman">マークスマン</button>
+            <button class="role-btn" data-role="Support">サポート</button>
+            <button class="role-btn" data-role="Tank">タンク</button>
+        </div>
     </header>
 
     <main class="container">
         <div id="loading" class="loading">チャンピオンデータを読み込み中...</div>
         <div id="championGrid" class="champion-grid"></div>
     </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>This tool isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends &copy; Riot Games, Inc.</p>
+        </div>
+    </footer>
 
     <!-- Modal -->
     <div id="championModal" class="modal">
