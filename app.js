@@ -4,29 +4,99 @@ const loading = document.getElementById('loading');
 const modal = document.getElementById('championModal');
 const modalBody = document.getElementById('modalBody');
 const closeModal = document.getElementById('closeModal');
+const langToggle = document.getElementById('langToggle');
+const miniGameBtn = document.getElementById('miniGameBtn');
+const miniGameModal = document.getElementById('miniGameModal');
+const closeMiniGame = document.getElementById('closeMiniGame');
 
 let championsList = [];
 let currentRole = 'All';
 let latestVersion = '';
 
-// Fetch latest version first
+let currentLang = 'ja';
+const championDataCache = {
+    ja: null,
+    en: null
+};
+
+const UI_TEXT = {
+    ja: {
+        search_placeholder: "チャンピオンを検索...",
+        role_all: "すべて",
+        role_fighter: "ファイター",
+        role_mage: "メイジ",
+        role_assassin: "アサシン",
+        role_marksman: "マークスマン",
+        role_support: "サポート",
+        role_tank: "タンク",
+        loading: "チャンピオンデータを読み込み中...",
+        loading_error: "データの読み込みに失敗しました。",
+        cd_inherent: "固有",
+        cd_sec: "秒",
+        counters_title: "おすすめカウンターピック",
+        counters_none: "このチャンピオンの対策データは未登録です。（countersData.jsで追加できます）",
+        combos_title: "基礎コンボ",
+        combos_none: "コンボデータは未登録です。（countersData.jsで追加できます）"
+    },
+    en: {
+        search_placeholder: "Search champions...",
+        role_all: "All",
+        role_fighter: "Fighter",
+        role_mage: "Mage",
+        role_assassin: "Assassin",
+        role_marksman: "Marksman",
+        role_support: "Support",
+        role_tank: "Tank",
+        loading: "Loading champion data...",
+        loading_error: "Failed to load data.",
+        cd_inherent: "Inherent",
+        cd_sec: "s",
+        counters_title: "Recommended Counters",
+        counters_none: "Counter data is not registered for this champion.",
+        combos_title: "Basic Combos",
+        combos_none: "Combo data is not registered for this champion."
+    }
+};
+
+function updateStaticUI() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (UI_TEXT[currentLang][key]) {
+            el.textContent = UI_TEXT[currentLang][key];
+        }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (UI_TEXT[currentLang][key]) {
+            el.setAttribute('placeholder', UI_TEXT[currentLang][key]);
+        }
+    });
+    if (langToggle) {
+        langToggle.textContent = currentLang === 'ja' ? 'EN' : '日本語';
+    }
+}
+
+async function fetchChampionData(lang) {
+    if (championDataCache[lang]) return championDataCache[lang];
+    const apiLang = lang === 'ja' ? 'ja_JP' : 'en_US';
+    const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/${apiLang}/championFull.json`);
+    const data = await res.json();
+    championDataCache[lang] = Object.values(data.data);
+    return championDataCache[lang];
+}
+
 async function init() {
     try {
+        updateStaticUI();
         const vRes = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
         const versions = await vRes.json();
         latestVersion = versions[0];
         
-        // Fetch champion data
-        const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/ja_JP/championFull.json`);
-        const data = await res.json();
+        championsList = await fetchChampionData(currentLang);
         
-        championsList = Object.values(data.data);
-        
-        // Render
         loading.style.display = 'none';
         renderChampions(championsList, latestVersion);
         
-        // Setup Role Filters
         const roleBtns = document.querySelectorAll('.role-btn');
         roleBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -37,13 +107,40 @@ async function init() {
             });
         });
 
-        // Setup Search
         searchInput.addEventListener('input', () => {
             filterChampions();
         });
+        
+        if (langToggle) {
+            langToggle.addEventListener('click', async () => {
+                currentLang = currentLang === 'ja' ? 'en' : 'ja';
+                updateStaticUI();
+                
+                loading.textContent = UI_TEXT[currentLang].loading;
+                loading.style.display = 'block';
+                championGrid.innerHTML = '';
+                
+                try {
+                    championsList = await fetchChampionData(currentLang);
+                    loading.style.display = 'none';
+                    filterChampions();
+                    
+                    if (modal.classList.contains('active')) {
+                        const currentChampId = modal.getAttribute('data-current-champ');
+                        if (currentChampId) {
+                            const champ = championsList.find(c => c.id === currentChampId);
+                            if (champ) openModal(champ, latestVersion);
+                        }
+                    }
+                } catch (err) {
+                    loading.textContent = UI_TEXT[currentLang].loading_error;
+                    console.error(err);
+                }
+            });
+        }
 
     } catch (err) {
-        loading.textContent = 'データの読み込みに失敗しました。';
+        loading.textContent = UI_TEXT[currentLang].loading_error;
         console.error(err);
     }
 }
@@ -74,9 +171,9 @@ function renderChampions(champs, version) {
 }
 
 function openModal(champ, version) {
+    modal.setAttribute('data-current-champ', champ.id);
     const keys = ['Q', 'W', 'E', 'R'];
     
-    // Passive
     let skillsHTML = `
         <div class="skill-row">
             <div class="skill-icon-wrapper">
@@ -86,12 +183,11 @@ function openModal(champ, version) {
             <div class="skill-info">
                 <h3>${champ.passive.name}</h3>
                 <p class="desc">${champ.passive.description}</p>
-                <div class="skill-cd"><span>CD:</span> 固有</div>
+                <div class="skill-cd"><span>CD:</span> ${UI_TEXT[currentLang].cd_inherent}</div>
             </div>
         </div>
     `;
 
-    // Spells (Q,W,E,R)
     champ.spells.forEach((spell, idx) => {
         const cdText = spell.cooldownBurn;
         skillsHTML += `
@@ -103,13 +199,12 @@ function openModal(champ, version) {
                 <div class="skill-info">
                     <h3>${spell.name}</h3>
                     <p class="desc">${spell.description}</p>
-                    <div class="skill-cd"><span>CD:</span> ${cdText} 秒</div>
+                    <div class="skill-cd"><span>CD:</span> ${cdText} ${UI_TEXT[currentLang].cd_sec}</div>
                 </div>
             </div>
         `;
     });
 
-    // Counters HTML
     let countersHTML = '';
     if (typeof COUNTER_DATA !== 'undefined' && COUNTER_DATA[champ.id]) {
         const counterIds = COUNTER_DATA[champ.id];
@@ -126,7 +221,7 @@ function openModal(champ, version) {
         });
         countersHTML = `
             <div class="counters-section">
-                <h3 class="counters-title">おすすめカウンターピック</h3>
+                <h3 class="counters-title">${UI_TEXT[currentLang].counters_title}</h3>
                 <div class="counter-champs">
                     ${counterCards}
                 </div>
@@ -135,23 +230,22 @@ function openModal(champ, version) {
     } else {
         countersHTML = `
             <div class="counters-section">
-                <h3 class="counters-title">おすすめカウンターピック</h3>
-                <p class="no-counter-data">このチャンピオンの対策データは未登録です。（countersData.jsで追加できます）</p>
+                <h3 class="counters-title">${UI_TEXT[currentLang].counters_title}</h3>
+                <p class="no-counter-data">${UI_TEXT[currentLang].counters_none}</p>
             </div>
         `;
     }
 
-    // Combos HTML
     let combosHTML = '';
-    if (typeof COMBO_DATA !== 'undefined' && COMBO_DATA[champ.id]) {
-        const combos = COMBO_DATA[champ.id];
+    if (typeof COMBO_DATA !== 'undefined' && COMBO_DATA[champ.id] && COMBO_DATA[champ.id][currentLang]) {
+        const combos = COMBO_DATA[champ.id][currentLang];
         let comboItems = '';
         combos.forEach(combo => {
             comboItems += `<li>${combo}</li>`;
         });
         combosHTML = `
             <div class="combo-section">
-                <h3 class="combo-title">基礎コンボ</h3>
+                <h3 class="combo-title">${UI_TEXT[currentLang].combos_title}</h3>
                 <ul class="combo-list">
                     ${comboItems}
                 </ul>
@@ -160,8 +254,8 @@ function openModal(champ, version) {
     } else {
         combosHTML = `
             <div class="combo-section">
-                <h3 class="combo-title">基礎コンボ</h3>
-                <p class="no-counter-data">コンボデータは未登録です。（countersData.jsで追加できます）</p>
+                <h3 class="combo-title">${UI_TEXT[currentLang].combos_title}</h3>
+                <p class="no-counter-data">${UI_TEXT[currentLang].combos_none}</p>
             </div>
         `;
     }
@@ -191,7 +285,29 @@ window.onclick = (e) => {
     if (e.target === modal) {
         modal.classList.remove('active');
     }
+    if (e.target === miniGameModal) {
+        miniGameModal.classList.remove('active');
+    }
 }
 
-// Start
+if (document.getElementById('miniGameBtn')) {
+    document.getElementById('miniGameBtn').onclick = () => {
+        console.log('Opening Mini Game...');
+        const mgm = document.getElementById('miniGameModal');
+        if (mgm) {
+            mgm.style.display = 'flex';
+            mgm.classList.add('active');
+        }
+    };
+}
+if (document.getElementById('closeMiniGame')) {
+    document.getElementById('closeMiniGame').onclick = () => {
+        const mgm = document.getElementById('miniGameModal');
+        if (mgm) {
+            mgm.style.display = 'none';
+            mgm.classList.remove('active');
+        }
+    };
+}
+
 init();
