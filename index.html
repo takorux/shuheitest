@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillshot Dodger - LoL Mini Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-top">
+                <div class="score-container">
+                    <span class="label">SCORE:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="timer-container">
+                    <span id="timer">00:00</span>
+                </div>
+            </div>
+            
+            <div class="hud-bottom">
+                <div class="ability-slot" id="regen-slot">
+                    <div class="key">SHIFT</div>
+                    <div class="icon" id="regen-icon" style="background-color: #ff9d00;"></div>
+                    <div class="cooldown-overlay" id="regen-cooldown"></div>
+                </div>
+                <div class="ability-slot" id="immortality-slot">
+                    <div class="key">E</div>
+                    <div class="icon" id="immortality-icon" style="background-color: #00d4ff;"></div>
+                    <div class="cooldown-overlay" id="immortality-cooldown"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Overlay screens -->
+        <div id="start-screen" class="overlay active">
+            <div class="content">
+                <h1>SKILLSHOT <span>DODGER</span></h1>
+                <p>マウスカーソルを動かしてスキルショットを回避せよ！</p>
+                <div class="controls-guide">
+                    <div class="guide-item">
+                        <span class="key">Move</span> Mouse
+                    </div>
+                    <div class="guide-item">
+                        <span class="key">D</span> Flash
+                    </div>
+                </div>
+                <button id="start-btn">ゲーム開始</button>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="overlay">
+            <div class="content">
+                <h2>DEFEAT</h2>
+                <div class="final-stats">
+                    <p>Score: <span id="final-score">0</span></p>
+                    <p>Time: <span id="final-time">00:00</span></p>
+                </div>
+                
+                <div id="ranking-input-area">
+                    <input type="text" id="player-name-input" placeholder="名前を入力..." maxlength="10">
+                    <button id="submit-score-btn">ランキングに登録</button>
+                </div>
+
+                <div class="leaderboard">
+                    <h3>TOP RANKING</h3>
+                    <ul id="leaderboard-list">
+                        <!-- Rankings will be injected here -->
+                    </ul>
+                </div>
+
+                <button id="restart-btn">もう一度挑戦</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
