@@ -6,38 +6,56 @@ const modalBody = document.getElementById('modalBody');
 const closeModal = document.getElementById('closeModal');
 
 let championsList = [];
+let currentRole = 'All';
+let latestVersion = '';
 
 // Fetch latest version first
 async function init() {
     try {
         const vRes = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
         const versions = await vRes.json();
-        const latest = versions[0];
+        latestVersion = versions[0];
         
         // Fetch champion data
-        const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${latest}/data/ja_JP/championFull.json`);
+        const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/ja_JP/championFull.json`);
         const data = await res.json();
         
         championsList = Object.values(data.data);
         
         // Render
         loading.style.display = 'none';
-        renderChampions(championsList, latest);
+        renderChampions(championsList, latestVersion);
         
+        // Setup Role Filters
+        const roleBtns = document.querySelectorAll('.role-btn');
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                roleBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentRole = e.target.getAttribute('data-role');
+                filterChampions();
+            });
+        });
+
         // Setup Search
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = championsList.filter(c => 
-                c.name.toLowerCase().includes(query) || 
-                c.id.toLowerCase().includes(query)
-            );
-            renderChampions(filtered, latest);
+        searchInput.addEventListener('input', () => {
+            filterChampions();
         });
 
     } catch (err) {
         loading.textContent = 'データの読み込みに失敗しました。';
         console.error(err);
     }
+}
+
+function filterChampions() {
+    const query = searchInput.value.toLowerCase();
+    const filtered = championsList.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(query) || c.id.toLowerCase().includes(query);
+        const matchesRole = currentRole === 'All' || c.tags.includes(currentRole);
+        return matchesSearch && matchesRole;
+    });
+    renderChampions(filtered, latestVersion);
 }
 
 function renderChampions(champs, version) {

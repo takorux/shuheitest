@@ -68,6 +68,38 @@ body {
     box-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
 }
 
+.role-filters {
+    max-width: 1200px;
+    margin: 15px auto 0;
+    padding: 0 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.role-btn {
+    background-color: rgba(1, 10, 19, 0.8);
+    border: 1px solid var(--hex-border);
+    color: var(--hex-text);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.role-btn:hover {
+    color: var(--hex-gold-light);
+    border-color: var(--hex-gold);
+}
+
+.role-btn.active {
+    background-color: rgba(200, 155, 60, 0.2);
+    color: var(--hex-gold);
+    border-color: var(--hex-gold);
+    box-shadow: 0 0 8px rgba(200, 155, 60, 0.4);
+}
+
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -273,4 +305,24 @@ body {
 .skill-cd span {
     color: #fff;
     margin-right: 8px;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--hex-blue);
+    border-top: 1px solid var(--hex-border);
+    padding: 30px 20px;
+    margin-top: 60px;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.footer p {
+    color: var(--hex-text);
+    font-size: 0.8rem;
+    line-height: 1.5;
 }
